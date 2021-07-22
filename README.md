@@ -13,4 +13,4 @@ Authentication handler for Asp Net Core to support Api Key authentication. Api k
    or like this
    `services.AddAuthentication(ApiKeyAuthenticationOptions.SchemeName).AddApiKey(opts => config.Bind("ApiKeyConfig", opts));`
 
-The default URL parameter name is `api-key`, http header - `X-Api-Key` but `ApiKeyAuthenticationOptions` allow to change those.
+The default URL parameter name is `api-key`, http header name - `X-Api-Key` but `ApiKeyAuthenticationOptions` allow to change those.
