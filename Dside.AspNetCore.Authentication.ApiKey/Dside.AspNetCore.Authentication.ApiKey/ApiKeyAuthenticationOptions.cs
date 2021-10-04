@@ -9,5 +9,11 @@ namespace Dside.AspNetCore.Authentication.ApiKey
 
         public string HeaderName { get; set; } = "X-Api-Key";
         public string UrlParameterName { get; set; } = "api-key";
+
+        public void SetNames(string newName)
+        {
+            HeaderName = $"X-{newName}";
+            UrlParameterName = newName;
+        }
     }
 }
