@@ -20,18 +20,6 @@ namespace Dside.AspNetCore.Authentication.ApiKey
             return authenticationBuilder.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.SchemeName, options);
         }
 
-        public static AuthenticationBuilder AddApiKey(this AuthenticationBuilder authenticationBuilder, string schemeName, Action<ApiKeyAuthenticationOptions> options = null)
-        {
-            return authenticationBuilder.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(schemeName, options);
-        }
-
-        public static AuthenticationBuilder AddApiKey<TResolver>(this AuthenticationBuilder authenticationBuilder, string schemeName, Action<ApiKeyAuthenticationOptions> options = null)
-            where TResolver : class, IApiKeyAuthenticationClaimsResolver
-        {
-            authenticationBuilder.Services.AddTransient<IApiKeyAuthenticationClaimsResolver, TResolver>();
-            return authenticationBuilder.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(schemeName, options);
-        }
-
         public static AuthenticationBuilder AddApiKey(this AuthenticationBuilder authenticationBuilder, Func<string, Claim[]> resolveFunc, Action<ApiKeyAuthenticationOptions> options = null)
         {
             authenticationBuilder.Services.AddTransient<IApiKeyAuthenticationClaimsResolver>(sp => new DelegateClaimResolver(resolveFunc));
@@ -42,18 +30,6 @@ namespace Dside.AspNetCore.Authentication.ApiKey
         {
             authenticationBuilder.Services.AddTransient<IApiKeyAuthenticationClaimsResolver>(sp => new DelegateClaimResolver((s) => resolveFunc(sp, s)));
             return authenticationBuilder.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(ApiKeyAuthenticationOptions.SchemeName, options);
-        }        
-        
-        public static AuthenticationBuilder AddApiKey(this AuthenticationBuilder authenticationBuilder, string schemeName, Func<string, Claim[]> resolveFunc, Action<ApiKeyAuthenticationOptions> options = null)
-        {
-            authenticationBuilder.Services.AddTransient<IApiKeyAuthenticationClaimsResolver>(sp => new DelegateClaimResolver(resolveFunc));
-            return authenticationBuilder.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(schemeName, options);
-        }
-
-        public static AuthenticationBuilder AddApiKey(this AuthenticationBuilder authenticationBuilder, string schemeName, Func<IServiceProvider, string, Task<Claim[]>> resolveFunc, Action<ApiKeyAuthenticationOptions> options = null)
-        {
-            authenticationBuilder.Services.AddTransient<IApiKeyAuthenticationClaimsResolver>(sp => new DelegateClaimResolver((s) => resolveFunc(sp, s)));
-            return authenticationBuilder.AddScheme<ApiKeyAuthenticationOptions, ApiKeyAuthenticationHandler>(schemeName, options);
         }
 
         private class DelegateClaimResolver : IApiKeyAuthenticationClaimsResolver
