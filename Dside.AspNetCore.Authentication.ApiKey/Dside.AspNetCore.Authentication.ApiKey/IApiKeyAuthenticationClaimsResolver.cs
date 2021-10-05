@@ -10,7 +10,8 @@ namespace Dside.AspNetCore.Authentication.ApiKey
         /// Resolves Api Key to a set of UserClaims. 
         /// </summary>
         /// <param name="apiKey">Api Key</param>
+        /// <param name="options">Api Key Authentication Options</param>
         /// <returns>Array of Claims. Null indicate authentication failure.</returns>
-        Task<Claim[]> Resolve(string apiKey);
+        Task<Claim[]> Resolve(string apiKey, ApiKeyAuthenticationOptions options);
     }
 }
