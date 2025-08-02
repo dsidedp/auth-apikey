@@ -21,6 +21,19 @@ namespace Dside.AspNetCore.Authentication.ApiKey
             if (_resolvers.Length == 0) throw new AuthenticationException("No Claim resolvers has been provided.");
         }
 
+        protected new ApiKeyEvents Events
+        {
+#if NETSTANDARD2_0
+            get => (ApiKeyEvents)base.Events;
+#else
+            get => (ApiKeyEvents)base.Events!;
+#endif
+
+            set => base.Events = value;
+        }
+
+        protected override Task<object> CreateEventsAsync() => Task.FromResult<object>(new ApiKeyEvents());
+
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
             var authToken = Request.Query[Options.UrlParameterName].FirstOrDefault() ?? Request.Headers[Options.HeaderName].FirstOrDefault();
@@ -45,6 +58,41 @@ namespace Dside.AspNetCore.Authentication.ApiKey
             var ticket = new AuthenticationTicket(principal, Options.Scheme);
 
             return AuthenticateResult.Success(ticket);
+        }
+
+        protected override async Task HandleChallengeAsync(AuthenticationProperties properties)
+        {
+            var authResult = await HandleAuthenticateOnceSafeAsync();
+            var eventContext = new ApiKeyChallengeContext(Context, Scheme, Options, properties)
+            {
+                AuthenticateFailure = authResult?.Failure
+            };
+
+            await Events.Challenge(eventContext);
+            
+            if (eventContext.Handled) return;
+
+            Response.StatusCode = 401;
+        }
+
+        protected override Task HandleForbiddenAsync(AuthenticationProperties properties)
+        {
+            var forbiddenContext = new ApiKeyForbiddenContext(Context, Scheme, Options);
+
+            if (Response.StatusCode == 403)
+            {
+                // No-op
+            }
+            else if (Response.HasStarted)
+            {
+                // No-op
+            }
+            else
+            {
+                Response.StatusCode = 403;
+            }
+
+            return Events.Forbidden(forbiddenContext);
         }
     }
 }
